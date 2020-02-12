@@ -2,47 +2,63 @@
   <div>
     <div class="top-row">
       <div class="top part">
-        <img v-bind:src="availableParts.heads[0].src" title="head"/>
-        <button class="prev-selector">&#9668;</button>
-        <button class="next-selector">&#9658;</button>
+        <div class="robot-name">
+          {{selectedRobot.head.title}}
+          <span v-if="selectedRobot.head.onSale" class="sale"> Sale!</span>
+        </div>
+        <PartSelector/>
       </div>
     </div>
     <div class="middle-row">
-      <div class="left part">
-        <img v-bind:src="availableParts.arms[0].src" title="left arm"/>
-        <button class="prev-selector">&#9650;</button>
-        <button class="next-selector">&#9660;</button>
-      </div>
-      <div class="center part">
-        <img v-bind:src="availableParts.torsos[0].src" title="torso"/>
-        <button class="prev-selector">&#9668;</button>
-        <button class="next-selector">&#9658;</button>
-      </div>
-      <div class="right part">
-        <img v-bind:src="availableParts.arms[0].src" title="right arm"/>
-        <button class="prev-selector">&#9650;</button>
-        <button class="next-selector">&#9660;</button>
-      </div>
+      <PartSelector/>
+      <PartSelector/>
+      <PartSelector/>
     </div>
     <div class="bottom-row">
-      <div class="bottom part">
-        <img v-bind:src="availableParts.bases[0].src" title="bases"/>
-        <button class="prev-selector">&#9668;</button>
-        <button class="next-selector">&#9658;</button>
-      </div>
+      <PartSelector/>
     </div>
   </div>
 </template>
 
 <script>
 import availableParts from '../data/parts';
+import createdHookMixin from './created-hook-mixin';
+import PartSelector from './PartSelector.vue';
 
 export default {
   name: 'RobotBuilder',
+  components: { PartSelector },
   data() {
     return {
       availableParts,
+      cart: [],
+      selectedRobot: {
+        head: {},
+        leftArm: {},
+        rightArm: {},
+        torso: {},
+        base: {},
+      },
     };
+  },
+  mixins: [createdHookMixin],
+  computed: {
+    saleBorderClass() {
+      return this.selectedRobot.head.onSale ? 'sale-border' : '';
+    },
+    headBorderStyle() {
+      return {
+        border: this.selectedRobot.head.onSale ? '3px solid red' : '3px solid #aaa',
+      };
+    },
+  },
+  methods: {
+    addToCart() {
+      const robot = this.selectedRobot;
+      const cost = robot.head.cost + robot.leftArm.cost
+        + robot.rightArm.cost + robot.torso.cost + robot.base.cost;
+      this.cart.push(Object.assign({}, robot, { cost }));
+    },
   },
 };
 
@@ -138,4 +154,11 @@ export default {
 .right .next-selector {
   right: -3px;
 }
+.robot-name {
+  position: absolute;
+  top: -25px;
+  text-align: center;
+  width: 100%;
+}
+
 </style>
